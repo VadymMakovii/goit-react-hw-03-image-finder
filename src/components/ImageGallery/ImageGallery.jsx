@@ -77,7 +77,7 @@ export class ImageGallery extends Component {
     }
 
     if (prevState.images && prevState.images !== nextImages) {
-      window.scrollBy({ top: 600, behavior: 'smooth' });
+      window.scrollBy({ top: 580, behavior: 'smooth' });
     }
   }
 
