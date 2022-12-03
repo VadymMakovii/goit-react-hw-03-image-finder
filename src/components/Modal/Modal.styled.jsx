@@ -22,5 +22,3 @@ export const ImageBox = styled.div`
   width: 60vw;
   margin: auto;
 `;
-
-export const Image = styled.img``;

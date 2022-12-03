@@ -1,19 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
-import { ImageBox, Overlay, Image } from './Modal.styled';
+import { ImageBox, Overlay } from './Modal.styled';
 
 const modalRoot = document.querySelector('#modal-root');
 
 export class Modal extends Component {
   static propTypes = {
     onClose: PropTypes.func.isRequired,
-    url: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-  };
-
-  state = {
-    currentImage: '',
   };
 
   componentDidMount() {
@@ -47,12 +41,9 @@ export class Modal extends Component {
   };
 
   render() {
-    const { url, description } = this.props;
     return createPortal(
       <Overlay onClick={this.handleBackdropClick}>
-        <ImageBox>
-          <Image src={url} alt={description} />
-        </ImageBox>
+        <ImageBox>{this.props.children}</ImageBox>
       </Overlay>,
       modalRoot
     );

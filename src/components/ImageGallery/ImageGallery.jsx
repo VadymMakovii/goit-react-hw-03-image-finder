@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Button } from 'components/Button/Button';
 import { Loader } from 'components/Loader/Loader';
-import { Modal } from 'components/Modal/Modal';
 import { ImageList } from './ImageGallery.styled';
 
 export class ImageGallery extends Component {
@@ -14,14 +13,11 @@ export class ImageGallery extends Component {
   };
 
   state = {
-    page: 1,
+    page: null,
     images: null,
-    request: null,
+    request: '',
     loading: false,
     loadingMore: false,
-    showModal: false,
-    currentImage: '',
-    currentImageAlt: '',
   };
 
   async componentDidUpdate(prevProps, prevState) {
@@ -33,9 +29,9 @@ export class ImageGallery extends Component {
     if (prevRequest !== userRequest) {
       this.setState({
         page: 1,
+        images: null,
         request: userRequest,
         loading: true,
-        images: '',
         loadingMore: false,
       });
 
@@ -85,30 +81,12 @@ export class ImageGallery extends Component {
     }
   }
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
-  };
-
-  onImageClick = ({ largeImage, description }) => {
-    this.setState({ currentImage: largeImage, currentImageAlt: description });
-    this.toggleModal();
-  };
-
   loadMoreClick = () => {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
   render() {
-    const {
-      images,
-      showModal,
-      loading,
-      loadingMore,
-      currentImage,
-      currentImageAlt,
-    } = this.state;
+    const { images, loading, loadingMore } = this.state;
 
     return (
       <>
@@ -116,7 +94,6 @@ export class ImageGallery extends Component {
           {images &&
             images.map(({ id, webformatURL, largeImageURL, tags }) => (
               <ImageGalleryItem
-                onClick={this.onImageClick}
                 key={id}
                 smallImage={webformatURL}
                 largeImage={largeImageURL}
@@ -126,13 +103,6 @@ export class ImageGallery extends Component {
         </ImageList>
         {loading && <Loader />}
         {loadingMore && <Button onClick={this.loadMoreClick} />}
-        {showModal && (
-          <Modal
-            onClose={this.toggleModal}
-            url={currentImage}
-            description={currentImageAlt}
-          ></Modal>
-        )}
       </>
     );
   }

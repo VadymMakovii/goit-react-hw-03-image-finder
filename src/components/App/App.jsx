@@ -7,7 +7,7 @@ import { Container } from './App.styled';
 
 export class App extends Component {
   state = {
-    request: null,
+    request: '',
   };
 
   formSubmitHandler = ({ request }) => {
