@@ -13,70 +13,76 @@ export class ImageGallery extends Component {
   };
 
   state = {
-    page: null,
-    images: null,
+    page: 1,
+    images: [],
     request: '',
     loading: false,
     loadingMore: false,
   };
 
-  async componentDidUpdate(prevProps, prevState) {
-    const prevRequest = prevProps.request;
+  async componentDidMount() {
     const userRequest = this.props.request;
-    const currentPage = this.state.page;
-    const nextImages = this.state.images;
 
-    if (prevRequest !== userRequest) {
-      this.setState({
-        page: 1,
-        images: null,
-        request: userRequest,
-        loading: true,
-        loadingMore: false,
-      });
+    this.setState({
+      request: userRequest,
+      loading: true,
+    });
 
-      try {
-        const response = await getImages(userRequest);
-        const result = response.hits;
-        const totalHits = response.total;
+    try {
+      const response = await getImages(userRequest);
+      const results = response.hits.map(
+        ({ id, webformatURL, largeImageURL, tags }) => ({
+          id,
+          webformatURL,
+          largeImageURL,
+          tags,
+        })
+      );
 
-        this.setState({ images: result });
-        result.length < 1 &&
-          toast.warn(
-            'Sorry, there are no images matching your search query. Please try again.'
-          );
-        if (result.length < totalHits) {
-          this.setState({ loadingMore: true });
-        }
-      } catch (error) {
-        this.setState({ error });
-        toast.error(`${error.message}`);
-      } finally {
-        this.setState({ loading: false });
+      this.setState({ images: results });
+      results.length < 1 &&
+        toast.warn(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+      if (results.length < response.total) {
+        this.setState({ loadingMore: true });
       }
-      return;
+    } catch (error) {
+      toast.error(`${error.message}`);
+    } finally {
+      this.setState({ loading: false });
     }
+  }
 
-    if (prevState.page !== currentPage && currentPage > 1) {
+  async componentDidUpdate(__, prevState) {
+    const { request, page } = this.state;
+
+    if (prevState.page !== page) {
       this.setState({ loading: true, loadingMore: false });
+
       try {
-        const response = await addImages(userRequest, currentPage);
-        const newImages = response.hits;
-        const totalHits = response.total;
+        const response = await addImages(request, page);
+        const newImages = response.hits.map(
+          ({ id, webformatURL, largeImageURL, tags }) => ({
+            id,
+            webformatURL,
+            largeImageURL,
+            tags,
+          })
+        );
 
         this.setState(({ images }) => ({ images: [...images, ...newImages] }));
-        if (newImages.length < totalHits) {
+        if (newImages.length < response.total) {
           this.setState({ loadingMore: true });
         }
       } catch (error) {
-        this.setState({ error });
         toast.error(`${error.message}`);
       } finally {
         this.setState({ loading: false });
       }
     }
 
-    if (prevState.images && prevState.images !== nextImages) {
+    if (page > 1) {
       window.scrollBy({ top: 560, behavior: 'smooth' });
     }
   }
@@ -90,9 +96,9 @@ export class ImageGallery extends Component {
 
     return (
       <>
-        <ImageList>
-          {images &&
-            images.map(({ id, webformatURL, largeImageURL, tags }) => (
+        {images.length > 0 && (
+          <ImageList>
+            {images.map(({ id, webformatURL, largeImageURL, tags }) => (
               <ImageGalleryItem
                 key={id}
                 smallImage={webformatURL}
@@ -100,7 +106,8 @@ export class ImageGallery extends Component {
                 description={tags}
               />
             ))}
-        </ImageList>
+          </ImageList>
+        )}
         {loading && <Loader />}
         {loadingMore && <Button onClick={this.loadMoreClick} />}
       </>

@@ -8,19 +8,26 @@ import { Container } from './App.styled';
 export class App extends Component {
   state = {
     request: '',
+    showGallery: false,
   };
 
+  componentDidUpdate(__, prevState) {
+    if (this.state.request !== prevState.request) {
+      this.setState({ showGallery: true });
+    }
+  }
+
   formSubmitHandler = ({ request }) => {
-    this.setState({ request });
+    this.setState({ request, showGallery: false });
   };
 
   render() {
-    const { request } = this.state;
+    const { request, showGallery } = this.state;
 
     return (
       <Container>
         <Searchbar onSubmit={this.formSubmitHandler} />
-        <ImageGallery request={request} />
+        {showGallery && <ImageGallery request={request} />}
         <ToastContainer
           position="top-left"
           autoClose={1000}
