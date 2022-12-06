@@ -23,7 +23,6 @@ export class ImageGallery extends Component {
 
   async componentDidUpdate(prevProps) {
     const { request, page, onFetchImages } = this.props;
-    console.log(prevProps.request !== request);
 
     if (prevProps.request !== request || prevProps.page !== page) {
       this.setState({
